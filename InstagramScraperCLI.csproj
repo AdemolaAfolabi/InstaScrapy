@@ -9,6 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dropbox.Api" Version="4.9.4" />
+    <PackageReference Include="Instasharper" Version="1.4.82" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
   </ItemGroup>
