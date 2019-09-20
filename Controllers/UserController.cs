@@ -21,7 +21,7 @@ namespace InstagramScraperCLI.Controllers
             }
 
             catch (Exception e) {
-                
+                Console.WriteLine(e.Message);
             }
         }
     }
