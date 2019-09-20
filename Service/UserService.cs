@@ -1,4 +1,15 @@
 
+using InstaSharper.API.Builder;
+using InstaSharper.Classes;
+using InstaSharper.Classes.Models;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Dropbox.Api;
+using System.IO;
+using System.Text;
+using Dropbox.Api.Files;
+
 namespace InstagramScraperCLI.Service {
        public class UserService {
 
