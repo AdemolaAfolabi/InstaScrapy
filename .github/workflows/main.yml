@@ -1,17 +1,25 @@
-name: CI
-
+name: CI/CD
 on: [push]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    - uses: actions/checkout@master
+    - uses: azure/k8s-actions/k8s-set-context@master
+      with:
+        kubeconfig: ${{secrets.KUBE_CONFIG}}
+    - uses: azure/k8s-actions/k8s-create-secret@master
+      with:
+        container-registry-url: registry.hub.docker.com
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: azure-k8s-secret
+    - uses: azure/k8s-actions/k8s-deploy@master
+      with:
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          newodyssey/instagram-scraper:${{ github.sha }}
+        imagepullsecrets: |
+          demo-k8s-secret
