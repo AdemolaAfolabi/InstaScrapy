@@ -8,6 +8,7 @@ using Dropbox.Api;
 using System.IO;
 using System.Text;
 using Dropbox.Api.Files;
+using System.Collections.Generic;
 
 namespace VendoreUploader
 {
@@ -31,43 +32,67 @@ namespace VendoreUploader
 
         public static async Task<bool> MainAsync()
         {
-            await GetMediaByUser("champagnepapi");
+            var Operation1 = GetMediaByUser("donaldadediji");
+            var Operation2 = GetMediaByUser("homepicturestudios");
+            // var Operation3 = GetMediaByUser("georgedicksonphoto");
+            Task.WaitAll(Operation1, Operation2);
+
             return true;
         }
 
         public static async Task UploadMedia(IResult<InstaMediaList> Media, string User)
         {
-            var UriClient = new HttpClient();
-            DbxClient = new DropboxClient("fwtH1CHrKCAAAAAAAAAN5ov7bATlPsZrBXWA1mdD7WcwbfmqEknoUQgsH60s5Vt9");
-            if (!string.IsNullOrEmpty(User))
+            try
             {
-                foreach (var MediaItem in Media.Value)
+                var UriClient = new HttpClient();
+                DbxClient = new DropboxClient("fwtH1CHrKCAAAAAAAAAN5ov7bATlPsZrBXWA1mdD7WcwbfmqEknoUQgsH60s5Vt9");
+                int ImageIterator = 0;
+                if (!string.IsNullOrEmpty(User))
                 {
-                    if (MediaItem.Videos.Count > 0)
+                    foreach (var MediaItem in Media.Value)
                     {
-                        foreach (var Video in MediaItem.Videos)
+                        /*
+                        if (MediaItem.Videos.Count > 0)
                         {
-                            var Response = await UriClient.GetStreamAsync(Video.Url);
-                            using (Response)
+                            foreach (var Video in MediaItem.Videos)
                             {
-                                var Updated = await DbxClient.Files.UploadAsync("/" + User + "/" + MediaItem.InstaIdentifier + ".mp4", WriteMode.Overwrite.Instance, body: Response);
+                                var Response = await UriClient.GetStreamAsync(Video.Url);
+                                using (Response)
+                                {
+                                    var Updated = await DbxClient.Files.UploadAsync("/" + User + "/" + MediaItem.InstaIdentifier + ".mp4", WriteMode.Overwrite.Instance, body: Response);
+                                }
+                            }
+                        }*/
+
+                        if (MediaItem.Images.Count > 0)
+                        {
+                            foreach (var Image in MediaItem.Images)
+                            {
+                                var Response = await UriClient.GetStreamAsync(Image.URI);
+                                using (Response)
+                                {
+                                    var Updated = await DbxClient.Files.UploadAsync("/" + User + "/" + MediaItem.InstaIdentifier + ".jpg", WriteMode.Overwrite.Instance, body: Response);
+                                    ImageIterator++;
+                                    Console.WriteLine($"{Updated.Name} image has been uploaded for {User}");
+                                }
                             }
                         }
                     }
 
-                    if (MediaItem.Images.Count > 0)
-                    {
-                        foreach (var Image in MediaItem.Images)
-                        {
-                            var Response = await UriClient.GetStreamAsync(Image.URI);
-                            using (Response)
-                            {
-                                var Updated = await DbxClient.Files.UploadAsync("/"+User+"/"+MediaItem.InstaIdentifier+".jpg", WriteMode.Overwrite.Instance, body: Response);
-                            }
-                        }
-                    }
+                    Console.WriteLine($"{ImageIterator} have been uploaded for ${User} listing images");
                 }
             }
+
+            catch (RetryException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
         }
 
         public static async Task<IResult<InstaMediaList>> GetMediaByUser(string User)
@@ -89,7 +114,7 @@ namespace VendoreUploader
                 Console.WriteLine(Result.Succeeded);
 
                 var Parameters = PaginationParameters.MaxPagesToLoad(10);
-                IResult<InstaMediaList> Media = await Api.GetUserMediaAsync("demzzy_", Parameters);
+                IResult<InstaMediaList> Media = await Api.GetUserMediaAsync(User, Parameters);
                 await UploadMedia(Media, User);
                 return Media;
             }
