@@ -55,7 +55,7 @@ namespace InstagramScraperCLI.Service {
             {
                 var Credentials = new UserSessionData();
                 Credentials.UserName = "demzzy_";
-                Credentials.Password = "afolabi1994";
+                Credentials.Password = "blablabla";
             
                 var Api = InstagramClient
                     .SetUser(Credentials)
